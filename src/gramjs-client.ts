@@ -2,7 +2,7 @@ import { TelegramClient } from 'telegram';
 import { StringSession } from 'telegram/sessions';
 import { NewMessage } from 'telegram/events';
 import { Api } from 'telegram/tl';
-import { appConfig } from './config';
+import { appConfig, hasKeywordFilter, messageMatchesKeywordFilter } from './config';
 import { messageStore, StoredMessage } from './message-store';
 
 export class GramJSClient {
@@ -109,6 +109,12 @@ export class GramJSClient {
     
     console.log('[DEBUG] Content preview:', messageContent.substring(0, 80));
     console.log('[DEBUG] Has media:', hasMedia);
+
+    if (hasKeywordFilter() && !messageMatchesKeywordFilter(messageContent)) {
+      console.log('[DEBUG] ✗ Message did not match FILTER_KEYWORDS, skipping');
+      console.log('[DEBUG] ========== END MESSAGE ==========\n');
+      return;
+    }
 
     // Get chat identification
     let chatId: string | undefined;

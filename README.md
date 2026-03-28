@@ -45,7 +45,7 @@ Edit `.env` with your credentials:
 # Telegram MTProto (from https://my.telegram.org)
 TELEGRAM_API_ID=your_api_id
 TELEGRAM_API_HASH=your_api_hash
-TELEGRAM_STRING_SESSION=will_be_generated
+TELEGRAM_STRING_SESSION=will_be_generated_once_with_npm_run_auth
 
 # Telegram Bot (from @BotFather)
 TELEGRAM_BOT_TOKEN=your_bot_token
@@ -58,6 +58,10 @@ OPENROUTER_MODEL=anthropic/claude-3.5-sonnet
 MONITORED_CHANNELS=@channel1,@channel2,-1001234567890
 MONITORED_USERS=@user1,123456789
 
+# Optional: only store/process/summarize messages containing one of these keywords
+# Supports multiple languages, including Persian
+FILTER_KEYWORDS=bitcoin,btc,بیت کوین
+
 # Summary settings
 SUMMARY_CRON_EXPRESSION=0 */6 * * *
 SUMMARY_DESTINATION=@summary_channel
@@ -68,6 +72,8 @@ TZ=UTC
 ```
 
 ### 3. Generate String Session
+
+`TELEGRAM_STRING_SESSION` is the saved login session for the Telegram MTProto client used by GramJS. It allows the app to connect to your Telegram account without asking for the login code every time it starts.
 
 Run the authentication utility to generate your string session:
 
@@ -81,7 +87,19 @@ Follow the prompts to:
 3. Enter the verification code
 4. Enter 2FA password (if enabled)
 
-The session will be automatically saved to your `.env` file.
+The generated session can be reused in production. A common workflow is:
+
+1. Run `npm run auth` on your local machine
+2. Copy the generated `TELEGRAM_STRING_SESSION` into the server `.env`
+3. Deploy and start the app on the server
+
+Notes:
+
+- You usually only need to generate it once
+- It should work on another machine or server as long as you use the same `TELEGRAM_API_ID`, `TELEGRAM_API_HASH`, and Telegram account
+- Treat it like a password or API secret
+- If you revoke Telegram sessions or Telegram invalidates it, generate a new one
+- The auth script will automatically save the generated value into your local `.env`
 
 ### 4. Run with Docker (Recommended)
 
@@ -123,12 +141,13 @@ npm run dev
 |----------|----------|-------------|
 | `TELEGRAM_API_ID` | Yes | Telegram API ID from my.telegram.org |
 | `TELEGRAM_API_HASH` | Yes | Telegram API Hash from my.telegram.org |
-| `TELEGRAM_STRING_SESSION` | Yes | Generated session string |
+| `TELEGRAM_STRING_SESSION` | Yes | Saved Telegram login session for GramJS; generate once with `npm run auth` and reuse in production |
 | `TELEGRAM_BOT_TOKEN` | Yes | Bot token from @BotFather |
 | `OPENROUTER_API_KEY` | Yes | OpenRouter API key |
 | `OPENROUTER_MODEL` | Yes | Model name for summarization |
 | `MONITORED_CHANNELS` | No | Comma-separated list of channel IDs/usernames |
 | `MONITORED_USERS` | No | Comma-separated list of user IDs/usernames |
+| `FILTER_KEYWORDS` | No | Comma-separated keywords; when set, only messages containing at least one keyword are stored, processed, and summarized |
 | `SUMMARY_CRON_EXPRESSION` | Yes | Cron expression for automatic summaries |
 | `SUMMARY_DESTINATION` | Yes | Where to send summaries (channel/user ID) |
 | `AUTHORIZED_USERS` | Yes | User IDs allowed to use /summarize |

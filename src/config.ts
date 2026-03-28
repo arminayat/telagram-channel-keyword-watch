@@ -17,6 +17,19 @@ function getEnvArray(key: string): string[] {
   return value.split(',').map(s => s.trim()).filter(s => s.length > 0);
 }
 
+function normalizeKeywordText(value: string): string {
+  return value
+    .normalize('NFKC')
+    .replace(/\u064A/g, '\u06CC')
+    .replace(/\u0649/g, '\u06CC')
+    .replace(/\u0643/g, '\u06A9')
+    .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g, '')
+    .toLocaleLowerCase();
+}
+
+const filterKeywords = getEnvArray('FILTER_KEYWORDS');
+const normalizedFilterKeywords = filterKeywords.map(normalizeKeywordText);
+
 export interface Config {
   telegram: {
     apiId: number;
@@ -32,6 +45,9 @@ export interface Config {
   monitored: {
     channels: string[];
     users: string[];
+  };
+  filters: {
+    keywords: string[];
   };
   summary: {
     cronExpression: string;
@@ -56,6 +72,9 @@ export const appConfig: Config = {
     channels: getEnvArray('MONITORED_CHANNELS'),
     users: getEnvArray('MONITORED_USERS'),
   },
+  filters: {
+    keywords: filterKeywords,
+  },
   summary: {
     cronExpression: getEnvVar('SUMMARY_CRON_EXPRESSION'),
     destination: getEnvVar('SUMMARY_DESTINATION'),
@@ -66,8 +85,22 @@ export const appConfig: Config = {
 console.log('[DEBUG] Configuration loaded:');
 console.log('[DEBUG] Monitored channels:', appConfig.monitored.channels);
 console.log('[DEBUG] Monitored users:', appConfig.monitored.users);
+console.log('[DEBUG] Keyword filter:', appConfig.filters.keywords.length > 0 ? appConfig.filters.keywords : 'disabled');
 console.log('[DEBUG] Summary destination:', appConfig.summary.destination);
 
 export function isAuthorizedUser(userId: number): boolean {
   return appConfig.authorizedUsers.includes(userId);
+}
+
+export function hasKeywordFilter(): boolean {
+  return normalizedFilterKeywords.length > 0;
+}
+
+export function messageMatchesKeywordFilter(messageText: string): boolean {
+  if (!hasKeywordFilter()) {
+    return true;
+  }
+
+  const normalizedMessageText = normalizeKeywordText(messageText);
+  return normalizedFilterKeywords.some(keyword => normalizedMessageText.includes(keyword));
 }

@@ -27,11 +27,15 @@ export class TelegrafBot {
       const channels = messageStore.getChannels();
       const messageCount = messageStore.getMessageCount();
       const lastSummary = messageStore.getLastSummaryTime();
+      const keywordFilter = appConfig.filters.keywords.length > 0
+        ? appConfig.filters.keywords.join(', ')
+        : 'disabled';
 
       await ctx.reply(
         `📊 Bot Status:\n\n` +
         `Monitored channels: ${channels.length}\n` +
         `Messages stored: ${messageCount}\n` +
+        `Keyword filter: ${keywordFilter}\n` +
         `Last summary: ${lastSummary.toISOString()}`
       );
     });
