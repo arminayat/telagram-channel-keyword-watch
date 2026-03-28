@@ -4,7 +4,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Enable corepack and prepare pnpm (uses version from package.json)
-RUN corepack enable && corepack prepare pnpm@10.24.0 --activate
+RUN corepack enable && corepack prepare pnpm --activate
 
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
@@ -20,8 +20,8 @@ WORKDIR /app
 # Install tzdata for timezone support
 RUN apk add --no-cache tzdata
 
-# Enable corepack and prepare pnpm
-RUN corepack enable && corepack prepare pnpm@10.24.0 --activate
+# Enable corepack and prepare pnpm (uses version from package.json)
+RUN corepack enable && corepack prepare pnpm --activate
 
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --prod
