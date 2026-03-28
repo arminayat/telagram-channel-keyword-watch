@@ -1,0 +1,36 @@
+{
+  "name": "telegram-summary-bot",
+  "version": "1.0.0",
+  "description": "Telegram message summarization bot using GramJS and OpenRouter",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "auth": "ts-node src/auth/generate-session.ts",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "axios": "^1.6.2",
+    "dotenv": "^16.3.1",
+    "telegram": "^2.19.4",
+    "node-cron": "^3.0.3",
+    "telegraf": "^4.15.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "@types/node-cron": "^3.0.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "summarization",
+    "openrouter",
+    "gramjs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a"
+}
